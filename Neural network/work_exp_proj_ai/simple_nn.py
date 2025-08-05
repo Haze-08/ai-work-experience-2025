@@ -3,6 +3,7 @@ from __future__ import print_function
 from builtins import range
 from builtins import object
 import numpy as np
+import math
 import matplotlib.pyplot as plt
 try:
     xrange          # Python 2
@@ -87,16 +88,22 @@ class SimpleNet(object):
         # input. Store the result in the scores variable, which should be an array  #
         # of shape (N, C).                                                          #
         #############################################################################
-        
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        z1 = np.matmul(X, W1) + b1
+        a1 = np.maximum(0, z1)
+        z2 = np.matmul(a1, W2) + b2
+        z_3 = z2
 
-        z_2 = np.dot(X, W1) + b1            #(5 , 10)
-        z_2[z_2 < 0] = 0                    #Relu
-        a_2 = z_2                           #Relu
-        z_3 = np.dot(a_2, W2) + b2          #(5 , 3)
-
-        scores = np.apply_along_axis(lambda x: np.exp(x) / np.sum(np.exp(x)), 1, z_3) #softmax
-    
+        list1 = np.zeros((5,3))
+        for x in range(len(z2)):
+            z2[x] = np.exp(z2[x])
+        print(len(z2))
+        for i in range(len(z2)):  
+          divisor = np.sum(z2[i])
+          for j in range(len(z2[i])):
+            list1[i][j] = z2[i][j] / divisor
+        scores = list1
+            
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
 
@@ -119,6 +126,9 @@ class SimpleNet(object):
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+
+
+
         J = -np.log(
                     np.apply_along_axis(lambda x: np.exp(x) / np.sum(np.exp(x)), 1, z_3)
                     )
@@ -128,7 +138,7 @@ class SimpleNet(object):
         l2 = reg * l2
         loss = cross_entropy + l2 
         pass
-       
+        # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         # Backward pass: compute gradients
         grads = {}

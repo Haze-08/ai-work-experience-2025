@@ -75,7 +75,7 @@ print(correct_scores,'\n')
 # The difference should be very small. (< 1e-7)
 print('Difference between your scores and correct scores:')
 print(np.sum(np.abs(scores - correct_scores)))
-
+exit(-1)
 
 # Forward pass: compute the loss. In the same function, implement the second
 # part that computes the data and regularization loss.
