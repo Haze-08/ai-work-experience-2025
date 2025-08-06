@@ -78,7 +78,9 @@ class SimpleNet(object):
         # Unpack variables from the params dictionary
         W1, b1 = self.params['W1'], self.params['b1'] #shape 4,10 -- 10
         W2, b2 = self.params['W2'], self.params['b2'] #shapes 10,3 -- 3
-        N, D = X.shape
+        # print(X)
+        N, D= X.shape
+
 
         # Compute the forward pass
         scores = 0.
@@ -89,20 +91,20 @@ class SimpleNet(object):
         # of shape (N, C).                                                          #
         #############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        z1 = np.matmul(X, W1) + b1
-        a1 = np.maximum(0, z1)
-        z2 = np.matmul(a1, W2) + b2
-        z_3 = z2
+        z2 = np.matmul(X, W1) + b1
+        a2 = np.maximum(0, z2)
+        z3 = np.matmul(a2, W2) + b2
+        z_3 = np.copy(z3)
 
-        list1 = np.zeros((5,3))
-        for x in range(len(z2)):
-            z2[x] = np.exp(z2[x])
-        print(len(z2))
-        for i in range(len(z2)):  
-          divisor = np.sum(z2[i])
-          for j in range(len(z2[i])):
-            list1[i][j] = z2[i][j] / divisor
+        list1 = np.zeros((N,3))
+        for x in range(len(z3)):
+            z3[x] = np.exp(z3[x])
+        for i in range(len(z3)):  
+          divisor = np.sum(z3[i])
+          for j in range(len(z3[i])):
+            list1[i][j] = z3[i][j] / divisor
         scores = list1
+        '''scores = np.apply_along_axis(lambda x: np.exp(x) / np.sum(np.exp(x)), 1, z_3)'''
             
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -150,7 +152,33 @@ class SimpleNet(object):
         ##############################################################################
 
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        pass
+# Backpropagation
+        dscores = scores.copy()
+        dscores[np.arange(N), y] -= 1
+
+        dldz3 = dscores
+        dlda2 = np.matmul(dldz3, W2.T)
+        print(f"dlda2: {dlda2}")
+        print(f"z2: {z2}")
+        dldz2 = dlda2 * (z2 > 0)
+        
+        dldw2 = (np.matmul(a2.T, dldz3)/N) +   2 * reg * W2
+        dldb2 = np.sum(dldz3, axis=0) / N
+
+        dldw1 = np.matmul(X.T, dldz2) / N +   2 * reg * W1
+        
+        dldb1 = np.sum(dldz2, axis=0) / N
+
+        grads['W2'] = dldw2
+        grads['W1'] = dldw1
+        grads['b2'] = dldb2
+        grads['b1'] = dldb1
+        
+
+        # Gradients for W2 and b2
+
+
+
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return loss, grads
@@ -159,7 +187,7 @@ class SimpleNet(object):
 
     def train(self, X, y, X_val, y_val,
               learning_rate=1e-3, learning_rate_decay=0.95,
-              reg=5e-6, num_iters=100,
+              reg=5e-6, num_iters=300,
               batch_size=200, verbose=False):
         """
         Train this neural network using stochastic gradient descent.
@@ -198,12 +226,24 @@ class SimpleNet(object):
             #########################################################################
             
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            pass
-            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+            N, D = X.shape
+            line = np.random.randint(0, N-1)
+            line2 =  np.random.randint(0, N-1)
+            line3 =  np.random.randint(0, N-1)
+            line4 =  np.random.randint(0, N-1)
+            X_batch= X[[line, line2,line3, line4]] 
+            y_batch = y[[line, line2, line3, line4]]
 
-            # Compute loss and gradients using the current minibatch
+
+
+
+
+            # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
             loss, grads = self.loss(X_batch, y=y_batch, reg=reg)
             loss_history.append(loss)
+
+            # Compute loss and gradients using the current minibatch
+            
 
             #########################################################################
             # TODO: Use the gradients in the grads dictionary to update the         #
@@ -213,7 +253,10 @@ class SimpleNet(object):
             #########################################################################
             
             # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-            pass
+            self.params['W1'] -= learning_rate * grads['W1']
+            self.params['b1'] -= learning_rate * grads['b1']
+            self.params['W2'] -= learning_rate * grads['W2']
+            self.params['b2'] -= learning_rate * grads['b2']
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
             if verbose and it % 100 == 0:
@@ -259,7 +302,13 @@ class SimpleNet(object):
         ###########################################################################
         
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        pass
+        W1, b1 = self.params['W1'], self.params['b1'] #shape 4,10 -- 10
+        W2, b2 = self.params['W2'], self.params['b2']      
+        z2 = np.matmul(X, W1) + b1
+        a2 = np.maximum(0, z2)
+        z3 = np.matmul(a2, W2) + b2
+        scores = z3
+        y_pred = np.argmax(scores, axis=1)
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         return y_pred
