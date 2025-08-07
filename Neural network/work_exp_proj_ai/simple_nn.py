@@ -96,15 +96,15 @@ class SimpleNet(object):
         z3 = np.matmul(a2, W2) + b2
         z_3 = np.copy(z3)
 
-        list1 = np.zeros((N,3))
+        '''list1 = np.zeros((N,3))
         for x in range(len(z3)):
             z3[x] = np.exp(z3[x])
         for i in range(len(z3)):  
           divisor = np.sum(z3[i])
           for j in range(len(z3[i])):
             list1[i][j] = z3[i][j] / divisor
-        scores = list1
-        '''scores = np.apply_along_axis(lambda x: np.exp(x) / np.sum(np.exp(x)), 1, z_3)'''
+        scores = list1'''
+        scores = np.apply_along_axis(lambda x: np.exp(x) / np.sum(np.exp(x)), 1, z_3)
             
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
@@ -158,8 +158,6 @@ class SimpleNet(object):
 
         dldz3 = dscores
         dlda2 = np.matmul(dldz3, W2.T)
-        print(f"dlda2: {dlda2}")
-        print(f"z2: {z2}")
         dldz2 = dlda2 * (z2 > 0)
         
         dldw2 = (np.matmul(a2.T, dldz3)/N) +   2 * reg * W2
@@ -186,9 +184,10 @@ class SimpleNet(object):
 
 
     def train(self, X, y, X_val, y_val,
-              learning_rate=1e-3, learning_rate_decay=0.95,
-              reg=5e-6, num_iters=300,
+              learning_rate=1e-5, learning_rate_decay=0.95,
+              reg=5e-6, num_iters=1000,
               batch_size=200, verbose=False):
+        #changing learning rate from 1e-3 
         """
         Train this neural network using stochastic gradient descent.
 
@@ -231,8 +230,12 @@ class SimpleNet(object):
             line2 =  np.random.randint(0, N-1)
             line3 =  np.random.randint(0, N-1)
             line4 =  np.random.randint(0, N-1)
-            X_batch= X[[line, line2,line3, line4]] 
-            y_batch = y[[line, line2, line3, line4]]
+            line5 =  np.random.randint(0, N-1)
+            line6 =  np.random.randint(0, N-1)
+            line7 =  np.random.randint(0, N-1)
+            line8 =  np.random.randint(0, N-1)
+            X_batch= X[[line, line2,line3, line4,line5,line6,line7,line8]] 
+            y_batch = y[[line, line2, line3, line4,line5,line6,line7,line8]]
 
 
 

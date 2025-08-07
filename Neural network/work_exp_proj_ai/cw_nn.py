@@ -125,7 +125,6 @@ plt.plot(stats['loss_history'])
 plt.xlabel('iteration')
 plt.ylabel('training loss')
 plt.title('Training Loss history')
-plt.show()
 
 # ------------------------------------------------------
 # Load real data 
@@ -149,7 +148,6 @@ print('Test labels shape: ', y_test.shape)
 plt.figure(2)
 plt.imshow(visualize_grid(X_train[:100, :].reshape(100, 32,32, 3), padding=3).astype('uint8'))
 plt.gca().axis('off')
-plt.show()
 
 # Create a neural network with the right configuration for CIFAR-10
 input_size = 32 * 32 * 3
@@ -160,9 +158,44 @@ net = SimpleNet(input_size, hidden_size, num_classes)
 # Train a network with SGD. In addition, the learning rate will be adjusted with
 # an exponential learning rate schedule as optimization proceeding: after each
 # epoch, the learning rate will be reduced by multiplying it by a decay rate.
-stats = net.train(X_train, y_train, X_val, y_val, num_iters=1000,
-                  batch_size=200, learning_rate=1e-4, learning_rate_decay=0.95,
-                  reg=0.25, verbose=True)
+rate = [0.000573, 0.000576, 0.000579, 0.000581]
+decay = [0.503, 0.506, 0.509, 0.512, 0.515]
+reg = [1000, 2000, 4000, 5000, 7000,8000]  # Example range of regularization strengths
+
+# Best record keeping
+record = []
+best = 0
+
+# Grid search
+for a in rate:
+    for b in decay:
+        for c in reg:
+            stats = net.train(X_train, y_train, X_val, y_val,
+                              num_iters=c,
+                              batch_size=200,
+                              learning_rate=a,
+                              learning_rate_decay=b,
+                              reg=0.2,
+                              verbose=False)
+
+            val_acc = (net.predict(X_val) == y_val).mean()
+            print(f"lr: {a}, decay: {b}, reg: {c}, val_acc: {val_acc:.4f}")
+
+            if val_acc > best:
+                best = val_acc
+                record = [a, b, c, best]
+
+print(record)
+print(best)
+
+'''stats = net.train(X_train, y_train, X_val, y_val, num_iters=10000,
+                  batch_size=200, learning_rate=0.00058, learning_rate_decay=0.54,
+                  reg=0.3, verbose=True)'''
+
+#changing learning rate from 1e-4
+#changing learning decay from 0.95
+#changing reg from 0.25
+
 
 # Predict on the validation set
 val_acc = (net.predict(X_val) == y_val).mean()
