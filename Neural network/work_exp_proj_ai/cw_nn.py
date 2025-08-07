@@ -165,7 +165,7 @@ reg = [1000, 2000, 4000, 5000, 7000,8000]  # Example range of regularization str
 # Best record keeping
 record = []
 best = 0
-
+#lr: 0.000581, decay: 0.509, reg: 4000, val_acc: 0.5300
 # Grid search
 for a in rate:
     for b in decay:
